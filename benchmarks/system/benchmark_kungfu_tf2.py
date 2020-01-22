@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 
 import argparse
 import timeit
+import time as pytime
 
 import numpy as np
 import tensorflow as tf
@@ -106,7 +107,6 @@ def log(s, nl=True):
         return
     print(s, end='\n' if nl else '')
 
-
 log('Model: %s' % args.model)
 log('Batch size: %d' % args.batch_size)
 device = 'GPU' if args.cuda else 'CPU'
@@ -123,8 +123,11 @@ with tf.device(device):
     log('Running benchmark...')
     img_secs = []
     for x in range(args.num_iters):
+        log('Unix epoch time before iter #{}: {}'.format(x, pytime.time()))
         time = timeit.timeit(lambda: benchmark_step(first_batch=False),
                              number=args.num_batches_per_iter)
+        log('Unix epoch time after iter #{}: {}'.format(x, pytime.time()))
+
         img_sec = args.batch_size * args.num_batches_per_iter / time
         log('Iter #%d: %.1f img/sec per %s' % (x, img_sec, device))
         img_secs.append(img_sec)
